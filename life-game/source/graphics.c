@@ -2,8 +2,8 @@
 #include <stdio.h>
 // Window
 
-Window* createWindow(size_t size, const char* title) {
-    Window* newWindow = calloc(1, sizeof (Window));
+Window* createWindow(size_t width, size_t height, const char* title) {
+    Window* newWindow = calloc (1, sizeof (Window));
     if (newWindow == NULL)
         return NULL;
 
@@ -11,12 +11,13 @@ Window* createWindow(size_t size, const char* title) {
     if (title == NULL)
         title = default_title;
 
-    newWindow->size = size;
+    newWindow->width = width;
+    newWindow->height = height;
     newWindow->is_open = 1;
     newWindow->sdlWindow = SDL_CreateWindow(title,
                                             SDL_WINDOWPOS_CENTERED,
                                             SDL_WINDOWPOS_CENTERED,
-                                            size, size,
+                                            width, height,
                                             0);
     if (newWindow->sdlWindow == NULL)
         goto destroy_window;

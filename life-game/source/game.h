@@ -3,10 +3,11 @@
 #ifndef game
 #define game
 
-typedef struct CellField {
-    size_t size;
+#define FIELD_WIDTH 600
+#define FIELD_HEIGHT 600
 
-    int* stash;
+typedef struct{
+    int stash[FIELD_WIDTH * FIELD_HEIGHT];
 } CellField;
 
 CellField* createCellField(size_t size);

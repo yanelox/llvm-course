@@ -3,12 +3,11 @@
 
 int main () {
     const char title[] = "LIFE GAME";
-    size_t size = 600;
 
-    Window* window = createWindow (size, title);
+    Window* window = createWindow (FIELD_WIDTH, FIELD_HEIGHT, title);
 
-    CellField* field = createCellField (size);
-    randomFillCellField (field);
+    CellField field;
+    randomFillCellField (&field);
 
     while (window->is_open) {
         SDL_Event event;
@@ -20,15 +19,14 @@ int main () {
         SDL_BLACK(black_color, 255);
         colorWindow(window, black_color);
 
-        if (updateCellField(field) == 0) {
+        if (updateCellField(&field) == 0) {
             window->is_open = 0;
         }
 
-        drawCellField (window, field);
+        drawCellField (window, &field);
         displayWindow (window);
     }
 
-    destroyCellField (field);
     destroyWindow (window);
 
     SDL_Quit();
