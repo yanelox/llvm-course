@@ -1,5 +1,5 @@
 CC=gcc
-CFLAGS=-lcsfml-graphics -lcsfml-window -lcsfml-system -o
+CFLAGS=`sdl2-config --libs --cflags` -o
 
 SOURCE=source/main.c source/graphics.c source/game.c
 EXEC=life-game

@@ -61,7 +61,7 @@ int updateCellField (CellField* field) {
 }
 
 void drawCellField (Window* window, CellField* field) {
-    sfColor cellColor = sfGreen;
+    SDL_GREEN(cellColor, 255);
 
     for (int i = 0; i < field->size; i++)
         for (int j = 0; j < field->size; j++)

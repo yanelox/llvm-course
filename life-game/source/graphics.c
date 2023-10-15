@@ -2,80 +2,55 @@
 #include <stdio.h>
 // Window
 
-Window* createWindow (size_t size, const char* title) {
-    Window* newWindow = calloc (1, sizeof (Window));
+Window* createWindow(size_t size, const char* title) {
+    Window* newWindow = calloc(1, sizeof (Window));
     if (newWindow == NULL)
         return NULL;
 
-    sfVideoMode mode = {
-        .width = size,
-        .height = size,
-        .bitsPerPixel = 32
-    };
-
-    const char default_title[] = "SFML window";
+    const char default_title[] = "SDL window";
     if (title == NULL)
         title = default_title;
 
-    sfUint32 style = sfClose;
-
     newWindow->size = size;
-    newWindow->sfmlWindow = sfRenderWindow_create (mode, title, style, NULL);
-    if (newWindow->sfmlWindow == NULL)
-    {
-        free(newWindow);
-        return NULL;
-    }
+    newWindow->is_open = 1;
+    newWindow->sdlWindow = SDL_CreateWindow(title,
+                                            SDL_WINDOWPOS_CENTERED,
+                                            SDL_WINDOWPOS_CENTERED,
+                                            size, size,
+                                            0);
+    if (newWindow->sdlWindow == NULL)
+        goto destroy_window;
+
+    newWindow->sdlRenderer = SDL_CreateRenderer(newWindow->sdlWindow, -1, 0);
+    if (newWindow->sdlWindow == NULL)
+        goto destroy_sdl_window;
 
     return newWindow;
+
+    destroy_sdl_window:
+        SDL_DestroyWindow(newWindow->sdlWindow);
+    destroy_window:
+        free(newWindow);
+
+    return NULL;
 }
 
-void destroyWindow (Window* window) {
-    sfRenderWindow_destroy (window->sfmlWindow);
+void destroyWindow(Window* window) {
+    SDL_DestroyRenderer(window->sdlRenderer);
+    SDL_DestroyWindow(window->sdlWindow);
     free(window);
 }
 
-void closeWindow (Window* window) {
-    sfRenderWindow_close (window->sfmlWindow);
+void displayWindow(Window* window) {
+    SDL_RenderPresent(window->sdlRenderer);
 }
 
-void displayWindow (Window* window) {
-    sfRenderWindow_display (window->sfmlWindow);
+void colorWindow(Window* window, Color color) {
+    SDL_SetRenderDrawColor(window->sdlRenderer, color.red, color.green, color.blue, color.alpha);
+    SDL_RenderClear(window->sdlRenderer);
 }
 
-void drawRectangleOnWindow (Window* window, sfRectangleShape* rect) {
-    sfRenderWindow_drawRectangleShape (window->sfmlWindow, rect, NULL);
-}
-
-void colorWindow (Window* window, sfColor color) {
-    sfRenderWindow_clear (window->sfmlWindow, color);
-}
-
-sfBool Window_IsOpen (Window* window) {
-    return sfRenderWindow_isOpen(window->sfmlWindow);
-}
-
-sfBool pollEventWindow (Window* window, sfEvent* event) {
-    return sfRenderWindow_pollEvent (window->sfmlWindow, event);
-}
-
-void addPixel (Window* window, int x, int y, sfColor color) {
-    sfVector2f rect_position = {
-        .x = x,
-        .y = y,
-    };
-
-    sfVector2f rect_size = {
-        .x = 1.0,
-        .y = 1.0,
-    };
-
-    sfRectangleShape* rect = sfRectangleShape_create ();
-    sfRectangleShape_setPosition (rect, rect_position);
-    sfRectangleShape_setFillColor (rect, color);
-    sfRectangleShape_setSize (rect, rect_size);
-
-    sfRenderWindow_drawRectangleShape (window->sfmlWindow, rect, NULL);
-
-    sfRectangleShape_destroy(rect);
+void addPixel(Window* window, int x, int y, Color color) {
+    SDL_SetRenderDrawColor(window->sdlRenderer, color.red, color.green, color.blue, color.alpha);
+    SDL_RenderDrawPoint(window->sdlRenderer, x, y);
 }

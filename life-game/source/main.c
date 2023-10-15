@@ -10,19 +10,18 @@ int main () {
     CellField* field = createCellField (size);
     randomFillCellField (field);
 
-    while (Window_IsOpen(window))
-    {
-        sfEvent event;
-        while (pollEventWindow(window, &event))
-        {
-            if (event.type == sfEvtClosed)
-                closeWindow(window);
+    while (window->is_open) {
+        SDL_Event event;
+        while (SDL_PollEvent(&event)) {
+            if (event.type == SDL_WINDOWEVENT && event.window.event == SDL_WINDOWEVENT_CLOSE)
+                window->is_open = 0;
         }
 
-        colorWindow (window, sfBlack);
+        SDL_BLACK(black_color, 255);
+        colorWindow(window, black_color);
 
         if (updateCellField(field) == 0) {
-            closeWindow(window);
+            window->is_open = 0;
         }
 
         drawCellField (window, field);
@@ -31,6 +30,8 @@ int main () {
 
     destroyCellField (field);
     destroyWindow (window);
+
+    SDL_Quit();
 
     return 0;
 }
