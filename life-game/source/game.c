@@ -1,11 +1,6 @@
 #include "game.h"
-#include <stdlib.h>
-
-void randomFillCellField(CellField* field) {
-    for (int i = 0; i < FIELD_WIDTH; i++)
-        for (int j = 0; j < FIELD_HEIGHT; j++)
-            field->stash[i * FIELD_WIDTH + j] = (rand() > RAND_MAX / 5) ? 0 : 1;
-};
+#include "color.h"
+#include "graphics_methods.h"
 
 void copyCellField(CellField* source, CellField* dest) {
     for (int i = 0; i < FIELD_WIDTH; i++)
@@ -51,11 +46,32 @@ int updateCellField(CellField* field) {
         return 1;
 }
 
-void drawCellField(Window* window, CellField* field) {
+void drawCellField(CellField* field) {
     SDL_GREEN(cellColor, 255);
 
     for (int i = 0; i < FIELD_WIDTH; i++)
         for (int j = 0; j < FIELD_HEIGHT; j++)
             if (field->stash[i * FIELD_WIDTH + j] == 1)
-                addPixel (window, i, j, cellColor);
+                addPixel (i, j, cellColor);
+}
+
+void gameCycle() {
+    const char title[] = "LIFE GAME";
+    createWindow(FIELD_WIDTH, FIELD_HEIGHT, title);
+
+    CellField field;
+    randomFillCellField(&field);
+
+    while (isOpenWindow()) {
+        SDL_BLACK(black_color, 255);
+        colorWindow(black_color);
+
+        if (updateCellField(&field) == 0)
+            break;
+
+        drawCellField(&field);
+        displayWindow();
+    }
+
+    destroyWindow();
 }
