@@ -6,7 +6,7 @@
 static Window* window;
 
 void createWindow(int width, int height, const char* title) {
-    window = calloc (1, sizeof (Window));
+    window = (Window*) calloc (1, sizeof (Window));
     if (window == NULL)
         return;
 

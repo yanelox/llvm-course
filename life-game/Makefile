@@ -1,9 +1,12 @@
 CC=clang
 CXX=clang++
-CFLAGS=-O2 `sdl2-config --libs --cflags` -o
+CFLAGS=-lstdc++ -O2 `sdl2-config --libs --cflags` -o
 
 SOURCE=source/main.c source/graphics.c source/game.c source/random_fill.c
 EXEC=life-game
+INSTR_PATH=source/log.cpp
+INSTR_O=log.o
+INSTR_SO=log.so
 
 PASS_SOURCE=source/llvm-pass.cpp
 PASS_O=Pass.o
@@ -21,7 +24,9 @@ pass:
 	rm -rf $(PASS_O)
 
 game-with-pass: pass
-	$(CC) -flegacy-pass-manager -Xclang -load -Xclang ./libPass.so $(SOURCE) $(CFLAGS) $(EXEC) > $(EXEC_PATH)
+	$(CXX) $(INSTR_PATH) -c -o $(INSTR_O)
+	$(CC) -g -flegacy-pass-manager -Xclang -load -Xclang ./libPass.so $(INSTR_O) $(SOURCE) $(CFLAGS) $(EXEC)
+	rm -rf $(INSTR_O)
 
 clean:
 	rm -rf $(EXEC) $(PASS_O) $(PASS_SO)
