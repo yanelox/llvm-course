@@ -55,14 +55,14 @@ void drawCellField(CellField* field) {
                 addPixel (i, j, cellColor);
 }
 
-void gameCycle() {
+void gameCycle(int n) {
     const char title[] = "LIFE GAME";
     createWindow(FIELD_WIDTH, FIELD_HEIGHT, title);
 
     CellField field;
     randomFillCellField(&field);
 
-    while (isOpenWindow()) {
+    while (isOpenWindow() && n > 0) {
         SDL_BLACK(black_color, 255);
         colorWindow(black_color);
 
@@ -71,6 +71,7 @@ void gameCycle() {
 
         drawCellField(&field);
         displayWindow();
+        n--;
     }
 
     destroyWindow();

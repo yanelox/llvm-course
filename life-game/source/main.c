@@ -2,7 +2,7 @@
 
 int main () {
 
-    gameCycle();
+    gameCycle(1);
 
     return 0;
 }

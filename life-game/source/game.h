@@ -13,6 +13,6 @@ void randomFillCellField(CellField* field);
 int updateCellField(CellField* field);
 void drawCellField(CellField* field);
 
-void gameCycle();
+void gameCycle(int n);
 
 #endif
