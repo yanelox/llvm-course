@@ -3,7 +3,14 @@
 #include "llvm/Support/raw_ostream.h"
 #include "llvm/IR/LegacyPassManager.h"
 #include "llvm/Transforms/IPO/PassManagerBuilder.h"
+#include "llvm/IR/IRBuilder.h"
 using namespace llvm;
+
+#include <string>
+
+bool isFuncLogger(StringRef name) {
+    return name == "Logger" || name == "Dump";
+  }
 
 namespace {
   struct MyPass : public FunctionPass {
@@ -11,14 +18,45 @@ namespace {
     MyPass() : FunctionPass(ID) {}
 
     virtual bool runOnFunction(Function &F) {
-        for (auto &B : F) {
-          for (auto &I : B) {
-            I.print(outs(), true);
-            outs() << "\n";
-          }
-        }
+      if(isFuncLogger(F.getName()) || F.getName().contains("randomFillCellField"))
+        return false;
 
-      return false;
+      LLVMContext &Ctx = F.getContext();
+      IRBuilder<> builder(Ctx);
+      Type *retType = Type::getVoidTy(Ctx);
+
+      ArrayRef<Type *> LoggerParamTypes = {builder.getInt8Ty()->getPointerTo()};
+      FunctionType *LoggerFuncType = FunctionType::get(retType, LoggerParamTypes, false);
+      FunctionCallee LoggerFunc = F.getParent()->getOrInsertFunction("Logger", LoggerFuncType);
+
+      ArrayRef<Type *> DumpParamTypes = {};
+      FunctionType *DumpFuncType = FunctionType::get(retType, DumpParamTypes, false);
+      FunctionCallee DumpFunc = F.getParent()->getOrInsertFunction("Dump", DumpFuncType);
+
+      for (auto &B : F) {
+        for (auto &I : B) {
+          if (auto *call = dyn_cast<CallInst>(&I))
+            if (call->getCalledFunction() && isFuncLogger(call->getCalledFunction()->getName()))
+              continue;
+
+          // std::string stream;
+          // raw_string_ostream instr_stream{stream};
+          // I.print(instr_stream, true);
+
+          builder.SetInsertPoint(&I);
+          // Value *funcName = builder.CreateGlobalStringPtr(F.getName());
+          // Value *instr = builder.CreateGlobalStringPtr(instr_stream.str());
+          Value* instrName = builder.CreateGlobalStringPtr(I.getOpcodeName());
+          Value *args[] = {instrName};
+          builder.CreateCall(LoggerFunc, args);
+
+          if (auto *ret = dyn_cast<ReturnInst>(&I))
+            if (F.getName() == "main")
+              builder.CreateCall(DumpFunc, None);
+        }
+      }
+
+      return true;
     }
   };
 }

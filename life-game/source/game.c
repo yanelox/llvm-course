@@ -70,6 +70,10 @@ void gameCycle() {
 
         drawCellField(&field);
         displayWindow();
+
+        #ifdef ONECYCLE
+        break;
+        #endif
     }
 
     destroyWindow();
