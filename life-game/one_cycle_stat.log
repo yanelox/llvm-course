@@ -1,0 +1,16 @@
+add 17818104
+alloca 218291
+bitcast 15270344
+br 37337907
+call 23123778
+getelementptr 11610506
+icmp 21599831
+load 57717663
+mul 5441489
+ret 72761
+sext 5441491
+srem 5760000
+store 16714225
+switch 1
+trunc 291004
+zext 6
