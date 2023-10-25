@@ -35,6 +35,9 @@ namespace {
 
             for (auto &B : F) {
                 for (auto &I : B) {
+                    if (strcmp(I.getOpcodeName(), "phi") == 0)
+                        continue;
+
                     if (auto *call = dyn_cast<CallInst>(&I))
                         if (call->getCalledFunction() && isFuncLogger(call->getCalledFunction()->getName()))
                             continue;
