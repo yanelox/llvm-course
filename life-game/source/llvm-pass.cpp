@@ -25,7 +25,7 @@ namespace {
             IRBuilder<> builder(Ctx);
             Type *retType = Type::getVoidTy(Ctx);
 
-            ArrayRef<Type *> LoggerParamTypes = {builder.getInt8Ty()->getPointerTo()};
+            ArrayRef<Type *> LoggerParamTypes = {builder.getInt8Ty()->getPointerTo(), builder.getInt64Ty()};
             FunctionType *LoggerFuncType = FunctionType::get(retType, LoggerParamTypes, false);
             FunctionCallee LoggerFunc = F.getParent()->getOrInsertFunction("Logger", LoggerFuncType);
 
@@ -50,7 +50,8 @@ namespace {
                     // Value *funcName = builder.CreateGlobalStringPtr(F.getName());
                     // Value *instr = builder.CreateGlobalStringPtr(instr_stream.str());
                     Value* instrName = builder.CreateGlobalStringPtr(I.getOpcodeName());
-                    Value *args[] = {instrName};
+                    Value *instrOpcode = ConstantInt::get(builder.getInt64Ty(), (int64_t)(I.getOpcode()));
+                    Value *args[] = {instrName, instrOpcode};
                     builder.CreateCall(LoggerFunc, args);
 
                     if (auto *ret = dyn_cast<ReturnInst>(&I))
