@@ -35,7 +35,7 @@ namespace {
 
             for (auto &B : F) {
                 for (auto &I : B) {
-                    if (strcmp(I.getOpcodeName(), "phi") == 0)
+                    if (isa<PHINode>(I))
                         continue;
 
                     if (auto *call = dyn_cast<CallInst>(&I))
