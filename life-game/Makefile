@@ -2,11 +2,15 @@ CC=clang
 CXX=clang++
 CFLAGS=-lstdc++ -O2 `sdl2-config --libs --cflags` -o
 
-SOURCE=source/main.c source/graphics.c source/game.c source/random_fill.c
+SOURCE=source/main.c source/game.c source/random_fill.c
 EXEC=life-game
+
 INSTR_PATH=source/log.cpp
 INSTR_O=log.o
 INSTR_SO=log.so
+
+GRAPHICS_PATH=source/graphics.c
+GRAPHICS_O=graphics.o
 
 PASS_SOURCE=source/llvm-pass.cpp
 PASS_O=Pass.o
@@ -25,13 +29,15 @@ pass:
 
 game-with-pass: pass
 	$(CXX) $(INSTR_PATH) -c -o $(INSTR_O)
-	$(CC) -g -flegacy-pass-manager -Xclang -load -Xclang ./libPass.so $(INSTR_O) $(SOURCE) $(CFLAGS) $(EXEC)
-	rm -rf $(INSTR_O)
+	$(CC) $(GRAPHICS_PATH) -c -o $(GRAPHICS_O)
+	$(CC) -flegacy-pass-manager -Xclang -load -Xclang ./libPass.so $(INSTR_O) $(GRAPHICS_O) $(SOURCE) $(CFLAGS) $(EXEC)
+	rm -rf $(INSTR_O) $(GRAPHICS_O)
 
 game-with-pass-one-cycle: pass
 	$(CXX) $(INSTR_PATH) -c -o $(INSTR_O)
-	$(CC) -g -flegacy-pass-manager -Xclang -load -Xclang ./libPass.so $(INSTR_O) -DONECYCLE $(SOURCE) $(CFLAGS) $(EXEC)
-	rm -rf $(INSTR_O)
+	$(CC) $(GRAPHICS_PATH) -c -o $(GRAPHICS_O)
+	$(CC) -flegacy-pass-manager -Xclang -load -Xclang ./libPass.so $(INSTR_O) $(GRAPHICS_O) -DONECYCLE $(SOURCE) $(CFLAGS) $(EXEC)
+	rm -rf $(INSTR_O) $(GRAPHICS_O)
 
 clean:
 	rm -rf $(EXEC) $(PASS_O) $(PASS_SO)
